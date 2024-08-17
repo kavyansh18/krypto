@@ -136,6 +136,8 @@ export const TransactionProvider = ({ children }) => {
       const updatedTransactionCount = await transactionContract.getTransactionCount();
       setTransactionCount(updatedTransactionCount.toNumber());
       localStorage.setItem("transactionCount", updatedTransactionCount.toString());
+
+      window.reload()
     } catch (error) {
       console.error("Error sending transaction:", error);
     }
