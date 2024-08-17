@@ -76,8 +76,9 @@ export const TransactionProvider = ({ children }) => {
       const transactionContract = getEthereumContract();
       if (!transactionContract) return;
   
-      // Use ethers.js v6 method to parse amount
-      const parsedAmount = ethers.parseEther(amount);
+      // Divide amount by 1000 before sending
+      const amountInEther = parseFloat(amount) / 1000;
+      const parsedAmount = ethers.parseEther(amountInEther.toString());
   
       // Convert BigNumber to a string for transaction value
       const amountHex = parsedAmount.toString(); // Use toString() instead of toHexString()
@@ -114,6 +115,7 @@ export const TransactionProvider = ({ children }) => {
       console.error("Error sending transaction:", error);
     }
   };
+  
 
   useEffect(() => {
     checkIfWalletIsConnected();
