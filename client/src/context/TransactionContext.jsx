@@ -7,14 +7,13 @@ export const TransactionContext = React.createContext();
 const getEthereumContract = () => {
   if (typeof window !== "undefined" && window.ethereum) {
     try {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const provider = new ethers.BrowserProvider(window.ethereum);
       const signer = provider.getSigner();
       const transactionContract = new ethers.Contract(
         contractAddress,
         contractABI,
         signer
       );
-
       return transactionContract;
     } catch (error) {
       console.error("Failed to create a Web3 provider or contract:", error);
@@ -46,15 +45,12 @@ export const TransactionProvider = ({ children }) => {
   const checkIfWalletIsConnected = async () => {
     try {
       if (!window.ethereum) return alert("Please install MetaMask.");
-
       const accounts = await window.ethereum.request({ method: "eth_accounts" });
-
       if (accounts.length) {
         setCurrentAccount(accounts[0]);
       } else {
         console.log("No accounts found");
       }
-      console.log(accounts);
     } catch (error) {
       console.error("Error checking wallet connection:", error);
     }
@@ -63,11 +59,9 @@ export const TransactionProvider = ({ children }) => {
   const connectWallet = async () => {
     try {
       if (!window.ethereum) return alert("Please install MetaMask.");
-
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
-
       setCurrentAccount(accounts[0]);
     } catch (error) {
       console.error("Error connecting to wallet:", error);
@@ -77,13 +71,17 @@ export const TransactionProvider = ({ children }) => {
   const sendTransaction = async () => {
     try {
       if (!window.ethereum) return alert("Please install MetaMask.");
-
+  
       const { addressTo, amount, keyword, message } = formData;
       const transactionContract = getEthereumContract();
       if (!transactionContract) return;
-
-      const parsedAmount = ethers.utils.parseEther(amount);
-
+  
+      // Use ethers.js v6 method to parse amount
+      const parsedAmount = ethers.parseEther(amount);
+  
+      // Convert BigNumber to a string for transaction value
+      const amountHex = parsedAmount.toString(); // Use toString() instead of toHexString()
+  
       await window.ethereum.request({
         method: "eth_sendTransaction",
         params: [
@@ -91,24 +89,24 @@ export const TransactionProvider = ({ children }) => {
             to: addressTo,
             from: currentAccount,
             gas: "0x5208", // 21000 GWEI
-            value: parsedAmount._hex,
+            value: amountHex,
           },
         ],
       });
-
+  
       const transactionHash = await transactionContract.addToBlockchain(
         addressTo,
         parsedAmount,
         message,
         keyword
       );
-
+  
       setIsLoading(true);
       console.log(`Loading - ${transactionHash.hash}`);
       await transactionHash.wait();
       setIsLoading(false);
       console.log(`Success - ${transactionHash.hash}`);
-
+  
       const transactionCount = await transactionContract.getTransactionCount();
       setTransactionCount(transactionCount.toNumber());
       localStorage.setItem("transactionCount", transactionCount.toNumber());
