@@ -1,10 +1,11 @@
 import React, { useContext } from "react";
 
 import { TransactionContext } from "../context/TransactionContext";
-
+import eth from '../assets/eth.png'
 import useFetch from "../hooks/useFetch";
 import dummyData from "../utils/dummyData";
 import { shortenAddress } from "../utils/shortenAddress";
+import '../index.css'
 
 const TransactionsCard = ({ addressTo, addressFrom, timestamp, message, keyword, amount, url }) => {
   const gifUrl = useFetch({ keyword });
@@ -16,7 +17,7 @@ const TransactionsCard = ({ addressTo, addressFrom, timestamp, message, keyword,
       sm:min-w-[270px]
       sm:max-w-[300px]
       min-w-full
-      flex-col p-3 rounded-md hover:shadow-2xl"
+      flex-col p-3 rounded-3xl hover:shadow-2xl glass"
     >
       <div className="flex flex-col items-center w-full mt-3">
         <div className="display-flex justify-start w-full mb-6 p-2">
@@ -35,7 +36,7 @@ const TransactionsCard = ({ addressTo, addressFrom, timestamp, message, keyword,
           )}
         </div>
         <img
-          src={gifUrl || url}
+          src={gifUrl || url || eth}
           alt="nature"
           className="w-full h-64 2xl:h-96 rounded-md shadow-lg object-cover"
         />
